@@ -1,6 +1,6 @@
 # PART 1
 maxim = 0
-with open("2022_12_01a.input") as f:
+with open("2022_01.input") as f:
     current = 0
     for l in f.readlines():
         try:
@@ -13,7 +13,7 @@ print(maxim)
 
 # PART 2
 maxims = []
-with open("2022_12_01a.input") as f:
+with open("2022_01.input") as f:
     current = 0
     for l in f.readlines():
         try:

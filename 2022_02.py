@@ -21,7 +21,7 @@ def match1(opponent, chosen):
 
 score = 0
 chosen_vals = {"X": 1, "Y": 2, "Z": 3}
-with open("2022_12_02.input") as f:
+with open("2022_02.input") as f:
     for l in f.readlines():
         opponent, chosen = l.split()
         score += chosen_vals[chosen]
@@ -52,7 +52,7 @@ def match2(opponent, chosen):
 
 score = 0
 chosen_res = {"X": 0, "Y": 3, "Z": 6}
-with open("2022_12_02.input") as f:
+with open("2022_02.input") as f:
     for l in f.readlines():
         opponent, chosen = l.split()
         score += chosen_vals[chosen]
