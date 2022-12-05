@@ -23,7 +23,7 @@ def build_wall_and_convert_to_int(lines):
     return matrix, lowest_matrix
 
 
-def move_to_goal_naive(matrix, x=1, y=1, current_risk=0):
+def move_to_goal_naive(matrix, x=1, y=1, current_risk=0):  # down and right
     global goal
     lowest_risk = lowest_matrix[x][y]
     if lowest_risk <= current_risk:
@@ -32,6 +32,7 @@ def move_to_goal_naive(matrix, x=1, y=1, current_risk=0):
     lowest_matrix[x][y] = current_risk
     if matrix[x + 1][y + 1] == -99:
         goal = current_risk
+        # print(f"goal {goal}")
         return
     if matrix[x + 1][y] != -9:
         move_to_goal_naive(matrix, x + 1, y, current_risk + matrix[x + 1][y])
@@ -54,6 +55,7 @@ def build_big_wall_and_convert_to_int(lines):
         for line in small_matrix:
             new_lines = [val + plus for val in line]
             new_lines = [val if val < 10 else val % 10 + 1 for val in new_lines]
+            # -9 is easier than `val % 10 + 1`, but would not work in big grids
             new_matrix.append(new_lines)
         big_matrix.append(new_matrix)
 
@@ -87,7 +89,7 @@ def add_walls(matrix):
     return new_lines
 
 
-def create_lowest_matrix(matrix):
+def create_lowest_matrix(matrix):  # a simple initial estimate
     lowest_matrix = []
     for index, line in enumerate(matrix):
         new_line = [0]
@@ -105,8 +107,8 @@ def create_lowest_matrix(matrix):
     return lowest_matrix
 
 
-def move_to_goal(matrix, x=1, y=1, current_risk=0):
-    global goal
+def move_to_goal(matrix, x=1, y=1, current_risk=0):  # 4 directions
+    global goal  # should use an iterative version to avoid max_recursion
     lowest_risk = lowest_matrix[x][y]
     if lowest_risk <= current_risk:
         return
@@ -114,6 +116,7 @@ def move_to_goal(matrix, x=1, y=1, current_risk=0):
     lowest_matrix[x][y] = current_risk
     if matrix[x + 1][y + 1] == -99:
         goal = current_risk
+        print(f"goal {goal}")
         return
     if matrix[x + 1][y] != -9:
         move_to_goal(matrix, x + 1, y, current_risk + matrix[x + 1][y])
@@ -123,6 +126,12 @@ def move_to_goal(matrix, x=1, y=1, current_risk=0):
         move_to_goal(matrix, x - 1, y, current_risk + matrix[x - 1][y])
     if matrix[x][y - 1] != -9:
         move_to_goal(matrix, x, y - 1, current_risk + matrix[x][y - 1])
+
+
+
+
+def a_star(matrix, x, y, current_risk, heuristic):  # TODO
+
 
 
 ini = datetime.now()
@@ -138,7 +147,7 @@ print(f"elapsed: {datetime.now() - ini}")
 lowest_first = add_walls(lowest_matrix)
 import ipdb; ipdb.set_trace()  # max_recursion depth if not called !?
 move_to_goal_naive(matrix)  # takes about 3-4 min on my machine
-move_to_goal(matrix)  # doesn't change lowest_matrix -_-
+move_to_goal(matrix)  # probably would be better to just use A*
 
 print(f"elapsed: {datetime.now() - ini}")
-print(goal)  # 3012 too high
+print(goal)  # 3012 too high... the algorithm is not sound then?

@@ -43,27 +43,28 @@ for i in range(iterations):
 cn = Counter(formula).most_common()
 res = cn[0][1] - cn[-1][1]
 print(res)
+print(cn)
 
 
-# PART 2 ... 20x faster than Part 1... but should be even 1000x faster than now
+# PART 2... faster than Part 1... not even close as needed
 def build_rules_with_size(readings):
     rules = defaultdict(dict)
     rules[2] = build_rules(readings)
     alphabet = set(r[0] for r in readings)
-    for i in range(3, 8):
-        print(f"build {i}")
+    print(f"building rules with size ...")
+    for i in range(3, 7):
+        print(f"size {i} ...")
         for r in rules[i - 1]:
             for a in alphabet:
                 rules[i][f"{r}{a}"] = apply_rules(rules[2], f"{r}{a}")[:-1]
+    print(f"done building rules")
     return rules
 
 
 def apply_rules_long(rules, formula):
     new_formula = []
     i = 0
-    base = [a for a in range(8)]
-    extra = int(sqrt(min(100663297, len(formula))))
-    base += [a for a in range(8, extra, int(sqrt(extra)))]
+    base = [a for a in range(7)]
 
     while i < len(formula):
         for e in reversed(base):
@@ -82,27 +83,28 @@ def apply_rules_long(rules, formula):
             middle = rules[e].get(entry, 0)
             if not middle:
                 middle = apply_rules_long(rules, f"{entry}")[:-1]
-                rules[e][f"{entry}"] = middle
+                # rules[e][f"{entry}"] = middle
             new_formula.append(f"{middle}")
             i += e - 1
             break
-    # rules[len(formula)][formula] = "".join(new_formula)
-    # return rules[len(formula)][formula]
     return "".join(new_formula)
 
 
-iterations = 40
+iterations = 25  # still too slow for 40...
 formula = str(template)
 rules = build_rules_with_size(readings)
 
 ini = datetime.now()
-for i in range(iterations):
-    print(f"iter {i} f{datetime.now() - ini}")
-    formula = apply_rules_long(rules, formula)
-    print(len(formula))
-    print(sqrt(len(formula)))
+cn = Counter(formula[-1])
+for i, val in enumerate(formula):  # split input in pairs and calculate those
+    print(f"i {i}/{len(formula)} val {val} elapsed: {datetime.now() - ini}")
+    pair = new_pair = str(formula[i:i+2])
+    if len(pair) < 2:
+        break
+    for it in range(iterations):
+        new_pair = apply_rules_long(rules, new_pair)
+    cn += Counter(new_pair[:-1])  # count letters and discard to free memory
 
-
-cn = Counter(formula).most_common()
-res = cn[0][1] - cn[-1][1]
+res = cn.most_common()[0][1] - cn.most_common()[-1][1]
 print(res)
+print(cn.most_common())
