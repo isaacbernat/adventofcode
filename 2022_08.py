@@ -25,31 +25,31 @@ def initial_visibility(trees):
     return visibility
 
 
-def is_visible(x, y, trees):
+def is_visible(index_x, index_y, trees):
     val = trees[index_x][index_y]
     for index, tree in enumerate(trees[index_x]):
-        if index > index_y:
-            break
-        if tree < val:
+        if index >= index_y:
             return 1
+        if tree >= val:
+            break
 
-    for index, tree in enumerate(list(reversed(trees[index_x]))):
-        if index < index_y:
-            break
-        if tree < val:
+    for i in range(1, len(trees[index_x])):
+        if len(trees[index_x]) - i <= index_y:
             return 1
-
-    for i in range(len(trees)):
-        if i > index_x:
+        if trees[index_x][- i] >= val:
             break
-        if trees[i][index_y] < val:
-            return 1
 
     for i in range(len(trees)):
-        if len(trees) - i - 1 < index_x:
-            break
-        if trees[len(trees) - i - 1][index_y] < val:
+        if i >= index_x:
             return 1
+        if trees[i][index_y] >= val:
+            break
+
+    for i in range(1, len(trees)):
+        if len(trees) - i <= index_x:
+            return 1
+        if trees[- i][index_y] >= val:
+            break
     return 0
 
 
@@ -63,15 +63,11 @@ def total(visibility):
 
 trees = read_input()
 visibility = initial_visibility(trees)
-pprint(visibility)
 
 for index_x, line in enumerate(visibility):
     for index_y, tree in enumerate(line):
         if tree == 0:
             visibility[index_x][index_y] = is_visible(index_x, index_y, trees)
 
-# ~20 min WIP
 
 print(total(visibility))
-pprint(trees)
-pprint(visibility)
