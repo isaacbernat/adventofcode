@@ -69,5 +69,44 @@ for index_x, line in enumerate(visibility):
         if tree == 0:
             visibility[index_x][index_y] = is_visible(index_x, index_y, trees)
 
-
 print(total(visibility))
+
+
+# PART 2
+def get_scene(index_x, index_y, trees):
+    val = trees[index_x][index_y]
+    left = right = up = down = 0
+
+    for i in range(1, index_y + 1):
+        left += 1
+        if trees[index_x][index_y - i] >= val:
+            break
+
+    for i in range(1, len(trees[index_x]) - index_y):
+        right += 1
+        if trees[index_x][index_y + i] >= val:
+            break
+
+    for i in range(1, index_x + 1):
+        up += 1
+        if trees[index_x - i][index_y] >= val:
+            break
+
+    for i in range(1, len(trees) - index_x):
+        down += 1
+        if trees[index_x + i][index_y] >= val:
+            break
+
+    return left * right * up * down
+
+
+best = 0
+for index_x, line in enumerate(trees):
+    if index_x == 0 or index_x == len(trees) -1:
+        continue
+    for index_y, tree in enumerate(line):
+        if index_y == 0 or index_y == len(line) -1:
+            continue
+        best = max(best, get_scene(index_x, index_y, trees))
+
+print(best)
