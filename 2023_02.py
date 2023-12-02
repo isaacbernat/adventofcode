@@ -26,3 +26,22 @@ with open("2023_02.input") as f:
             res += int(game_number)
     print(res)
 
+
+# PART 2 (less than 5 minutes... all the 'hard work' came from pt 1)
+with open("2023_02.input") as f:
+    res = 0
+    for l in f.readlines():
+        red = green = blue = 0
+        game_number, draws = l[5:].split(':')
+        for d in draws.split(';'):
+            units = re.search(blue_pattern, d)
+            if units:
+                blue = max(int(units.group(1)), blue)
+            units = re.search(red_pattern, d)
+            if units:
+                red = max(int(units.group(1)), red)
+            units = re.search(green_pattern, d)
+            if units:
+                green = max(int(units.group(1)), green)
+        res += red * green * blue
+    print(res)
