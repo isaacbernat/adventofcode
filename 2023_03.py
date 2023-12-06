@@ -73,3 +73,101 @@ with open("2023_03.input") as f:
     for n in range(len(lines) - 1):
         res += get_part_numbers_per_line(n + 1, lines)
 print(res)
+
+
+# PART 2 (1h+, So much time spent using re.search instead of findall ;_;)
+def get_gear_ratios_per_line(x, lines):
+    y = 1
+    partial_res = 0
+    while y < len(lines[x]) - 1:
+        if lines[x][y] == '*':
+            partial_res += gear_info(x, y, lines)
+        y += 1
+    return partial_res
+
+
+def get_inline_number(y, line):
+    debug_y = y
+    for idx, num in enumerate(line[y:]):
+        if num not in nums:
+            y += idx
+            break
+    else:
+        y = len(line)
+    number_pattern = r"(\d+)"
+    return re.findall(number_pattern, line[:y])[-1]
+
+
+def gear_info(x, y, lines):
+    number = []
+
+    # same line
+    char = lines[x][y - 1]
+    if char in nums:
+        number_pattern = r"(\d+)\*"
+        number.append(re.findall(number_pattern, lines[x][:y + 1])[-1])
+    char = lines[x][y + 1]
+    if char in nums:
+        number_pattern = r"\*(\d+)"
+        number.append(re.findall(number_pattern, lines[x][y:])[0])
+
+    # line above... ugly code... ^_^'
+    skip_y = skip_y1 = False
+    char = lines[x - 1][y - 1]
+    if char in nums:
+        if lines[x - 1][y] in nums:
+            skip_y = True
+            if lines[x - 1][y + 1] in nums:
+                skip_y1 = True
+        number.append(get_inline_number(y - 1, lines[x - 1]))
+
+    char = lines[x - 1][y]
+    if not skip_y and char in nums:
+        if lines[x - 1][y + 1] in nums:
+            skip_y1 = True
+        number.append(get_inline_number(y, lines[x - 1]))
+    char = lines[x - 1][y + 1]
+    if not skip_y1 and char in nums:
+        number.append(get_inline_number(y + 1, lines[x - 1]))
+
+    # line below... ugly code... ^_^'
+    skip_y = skip_y1 = False
+    char = lines[x + 1][y - 1]
+    if char in nums:
+        if lines[x + 1][y] in nums:
+            skip_y = True
+            if lines[x + 1][y + 1] in nums:
+                skip_y1 = True
+        number.append(get_inline_number(y - 1, lines[x + 1]))
+    char = lines[x + 1][y]
+    if not skip_y and char in nums:
+        if lines[x + 1][y + 1] in nums:
+            skip_y1 = True
+        number.append(get_inline_number(y, lines[x + 1]))
+    char = lines[x + 1][y + 1]
+    if not skip_y1 and char in nums:
+        number.append(get_inline_number(y + 1, lines[x + 1]))
+
+    if len(number) == 2:
+        return int(number[0]) * int(number[1])
+    return 0
+
+
+lines = []
+res = 0
+nums = '0123456789'
+
+with open("2023_03.input") as f:
+    # preprocess input
+    first = 1
+    for l in f.readlines():
+        if first:
+            lines.append('.' * (len(l) + 1))
+            first = 0
+        lines.append(f'.{l.strip()}.')
+    else:
+        lines.append(lines[0])
+
+    for n in range(len(lines) - 1):
+        res += get_gear_ratios_per_line(n + 1, lines)
+print(res)
