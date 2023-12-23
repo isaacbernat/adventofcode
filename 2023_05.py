@@ -9,9 +9,7 @@ def use_maps(idx, lines, target):
     return idx, new_target
 
 
-digits = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 res = []
-maps = []
 with open("2023_05.input") as f:
     lines = f.readlines()
     seeds = [int(seed) for seed in lines[0].split(" ")[1:]]
@@ -24,6 +22,53 @@ with open("2023_05.input") as f:
             idx += 2
         res.append(target)
     print(min(res))
+
+
+# PART 2; took hours. Debugging inputs line by line because of a bad assigment
+def use_ranged_maps(idx, lines, targets):
+    new_targets = []
+    final_index = idx
+    while lines[final_index].strip() if final_index < len(lines) else 0:
+        final_index += 1
+
+    for t in targets:
+        tini, tend = t
+        for l in lines[idx:final_index]:
+            line = [int(e) for e in l.strip().split(" ")]
+            max_target = line[1] + line[2]
+
+            if tini >= line[1] and tini < max_target:
+                new_ini = line[0] + tini - line[1]
+                if tini + tend > max_target:
+                    remain_end = (tini + tend) - (max_target)
+                    new_end = tend - remain_end
+                    targets.append((max_target, remain_end))
+                else:
+                    new_end = tend
+                new_targets.append((new_ini, new_end))
+                break
+        else:  # if there's no matching rule
+            new_targets.append((tini, tend))
+    return final_index + 2, new_targets
+
+
+res = []
+with open("2023_05.input") as f:
+    lines = f.readlines()
+    seeds = [int(seed) for seed in lines[0].split(" ")[1:]]
+
+    for i in range(len(seeds)//2):
+        idx = 3
+        targets = [(seeds[i * 2], seeds[i * 2 + 1])]
+        while(idx < len(lines)):
+            idx, targets = use_ranged_maps(idx, lines, targets)
+        res.append(targets)
+
+    minimal = res[0][0][0]
+    for seed_ranges in res:
+        for rang in seed_ranges:
+            minimal = min(rang[0], minimal)
+    print(minimal)
 
 
 # # PART 0; Q&D version which only works for small numbers
@@ -46,9 +91,7 @@ with open("2023_05.input") as f:
 #     return seed
 
 
-# digits = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 # res = []
-# maps = []
 # idx = 3
 # with open("2023_05.input") as f:
 #     lines = f.readlines()
