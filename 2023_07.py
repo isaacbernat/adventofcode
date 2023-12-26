@@ -3,11 +3,8 @@
 # - raw_hand_card_value providing the Counter var instead of the raw line
 # - rank_card not doing elif, just if (earlier versions just returned...)
 
-
 from collections import Counter
-import sys
 
-sys.set_int_max_str_digits(10000)
 
 strength = {
     "A": 14,
@@ -25,6 +22,26 @@ strength = {
     "2": 2,
 }
 
+def calc_hand_type(hand):
+    # N.b. inefficient use of large ints (10**700...) but easy to debug.
+    # Would be more elegant to use hex instead + less digits with powers here.
+    # Even better github.com/salt-die/Advent-of-Code/blob/main/2023/day_07.py
+    # It didn't occur to me to use simple count to compare hand values...
+    if hand.most_common()[0][1] == 5:  # 5 kind
+        return 10 ** 700
+    if hand.most_common()[0][1] == 4:  # 4 kind
+        return 10 ** 600
+    if hand.most_common()[0][1] == 3 and hand.most_common()[1][1] == 2:  # full
+        return 10 ** 500
+    if hand.most_common()[0][1] == 3:  # 3 kind
+        return 10 ** 400
+    if hand.most_common()[0][1] == 2 and hand.most_common()[1][1] == 2:  # 2 pair
+        return 10 ** 300
+    if hand.most_common()[0][1] == 2:  # pair
+        return 10 ** 200
+    return 10 ** 100  # highest card
+
+
 def raw_hand_card_value(raw_hand):
     res = 0
     for idx, card in enumerate(reversed(raw_hand)):
@@ -33,25 +50,36 @@ def raw_hand_card_value(raw_hand):
 
 
 def rank_card(line):
-    # N.b. inefficient use of such big ints (10**700...) but easy to debug.
-    # Would be more elegant to use hex instead and less digits with powers here.
     hand = Counter(line.strip().split(" ")[0])
-    res = 10
-    if hand.most_common()[0][1] == 5:  # 5 kind
-        res **= 700
-    elif hand.most_common()[0][1] == 4:  # 4 kind
-        res **= 600
-    elif hand.most_common()[0][1] == 3 and hand.most_common()[1][1] == 2:  # full
-        res **= 500
-    elif hand.most_common()[0][1] == 3:  # 3 kind
-        res **= 400
-    elif hand.most_common()[0][1] == 2 and hand.most_common()[1][1] == 2:  # 2 pair
-        res **= 300
-    elif hand.most_common()[0][1] == 2:  # pair
-        res **= 200
-    else:  # highest card
-        res **= 100
+    res = calc_hand_type(hand)
+    return res + raw_hand_card_value(line.strip().split(" ")[0])
 
+
+with open("2023_07.input") as f:
+    lines = f.readlines()
+    sorted_lines = sorted(lines, key=rank_card)
+    res = 0
+    for idx, l in enumerate(sorted_lines):
+        res += int(l.strip().split(" ")[1]) * (idx + 1)
+    print(res)
+
+
+# PART 2: 7 minutes
+strength["J"] = 1
+
+
+def rank_card(line):
+    hand = Counter(line.strip().split(" ")[0])
+
+    most_common = hand.most_common()[0][0]
+    if most_common == "J" and hand.most_common()[0][1] != 5:
+        most_common = hand.most_common()[1][0]
+    J_cards = hand.get("J", 0)
+    if J_cards:
+        hand.pop("J")
+    hand[most_common] += J_cards
+
+    res = calc_hand_type(hand)
     return res + raw_hand_card_value(line.strip().split(" ")[0])
 
 
